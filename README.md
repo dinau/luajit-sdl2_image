@@ -16,7 +16,7 @@ Also needs **luajit.exe** binary.
 
 ```sh
 git clone https://github.com/dinau/luajit-sdl2_image
-cd luajit-sld2_image
+cd luajit-sdl2_image
 cd test
 test.bat
 ```
