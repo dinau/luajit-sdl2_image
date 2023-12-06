@@ -7,8 +7,8 @@ typedef struct {} FILE;
 typedef struct {} SDL_version;
 typedef struct {} SDL_Surface;
 typedef struct {} SDL_RWops;
-typedef struct {}  SDL_Texture;
-typedef struct {}  SDL_Renderer;
+typedef struct {} SDL_Texture;
+typedef struct {} SDL_Renderer;
 
 /*
 

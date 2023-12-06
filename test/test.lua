@@ -5,37 +5,36 @@ local img = require"sdl2_image"
 require"utils"
 ----------------------------------------
 
-local Input = {none = 0,left = 1, right = 2, jump = 3 , restart = 4, quit = 5}
-local Game = { renderer = {},
-               inputs   = {false,false,false, false,false,false},
-               player   = {texture = nil}, -- Player type
-             }
+local Input  = {none = 0,left = 1, right = 2, jump = 3 , restart = 4, quit = 5}
+local Game   = {}
+local Player = {}
 
--------------
+--------------
 --- newPlayer
--------------
-function newPlayer(texture) -- :Player type
-  local player = {}
-  player.texture = texture
-  return player
+--------------
+function Player.newPlayer(texture) -- :Player type
+  return {
+   texture = texture
+  }
 end
 
------------
--- newGame
------------
+------------
+--- newGame
+------------
 function newGame(renderer)
-  Game.renderer = renderer
-  local texture = img.LoadTexture(renderer,"img/space-400.jpg")
-  if nill == texture then
-    print("Error!: LoadTexture()")
-  end
-  Game.player = newPlayer(texture)
-  return Game
+  return  {
+    renderer = renderer,
+    inputs   = {false,false,false, false,false,false},
+    player   = Player.newPlayer(img.LoadTexture(renderer,"img/space-400.jpg")),
+    -- method
+    handleInput = Game.handleInput,
+    render      = Game.render,
+  }
 end
 
---------------------
+-----------
 -- toInput
---------------------
+-----------
 function toInput(key)
   if key == sdl.SCANCODE_Q or
      key == sdl.SDL_SCANCODE_RETURN or
@@ -74,7 +73,8 @@ function drawImage(renderer,texture)
   if 0 > sdl.RenderCopyEx(renderer,texture,nil,nil,angle[0],nil,sdl.FLIP_NONE) then
     print("Error!: RenderCopy() ")
   end
-  angle[0]= angle[0] + 0.005
+  local speed = 0.005
+  angle[0]= angle[0] + speed
 end
 
 ---------------
@@ -86,29 +86,26 @@ function Game:render()
    sdl.RenderPresent(self.renderer)
 end
 
---------
+---------
 --- main
---------
+---------
 function main()
   if sdlFailIf(0 == sdl.init(sdl.INIT_VIDEO + sdl.INIT_TIMER + sdl.INIT_EVENTS),
-    "SDL2 initialization failed") then
-    return -1
-  end
+    "SDL2 initialization failed") then os.exit(1) end
   if sdlFailIf(sdl.TRUE == sdl.SetHint("SDL_RENDER_SCALE_QUALITY", "2"),
-     "Linear texture filtering could not be enabled") then return -1
-  end
+     "Linear texture filtering could not be enabled") then os.exit(1) end
 
   local imgFlags = img.INIT_JPG
-  sdlFailIf(0 ~= img.Init(imgFlags), "SDL2 Image initialization failed")
+  if sdlFailIf(0 ~= img.Init(imgFlags), "SDL2 Image initialization failed") then os.exit(1) end
 
   local window = sdl.CreateWindow("SDL2_image test written in Luajit",
       sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED,
       480, 480, sdl.WINDOW_SHOWN)
-  if sdlFailIf(0 ~= window,"Window could not be created") then return -1 end
+  if sdlFailIf(0 ~= window,"Window could not be created") then os.exit(1) end
 
   local renderer = sdl.CreateRenderer(window,-1,
     sdl.RENDERER_ACCELERATED or sdl.RENDERER_PRESENTVSYNC)
-  if sdlFailIf(0 ~= renderer,"Renderer could not be created") then return -1 end
+  if sdlFailIf(0 ~= renderer,"Renderer could not be created") then os.exit(1) end
 
   --sdl.SetRenderDrawColor(renderer,0x08,0x88,0xff,255)
   sdl.SetRenderDrawColor(renderer,0x00,0x0,0x0,255)
@@ -128,8 +125,8 @@ function main()
   --------------
   sdl.DestroyRenderer(renderer)
   sdl.DestroyWindow(window)
-  img.quit()
-  sdl.quit()
+  img.Quit()
+  sdl.Quit()
 end
 
 ---------
